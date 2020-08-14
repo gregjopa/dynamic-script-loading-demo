@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Demo using partial dynamic script loading</title>
+  </head>
+  <body>
+    <h1>Demo using partial dynamic script loading</h1>
+
+    <p>This page demonstrates how "defer" does not work when using dynamic script loading. It loads two script tags:</p>
+    <ul>
+        <li>fast-script - downloads after 1 second and given lower priority by using defer w/ dynamic script loading</li>
+        <li>slow-script - downloads after 10 seconds and given higher priority</li>
+    </ul>
+
+    <p>The slow-script does not use async or defer so it's given higher priority. It will block DOMContentLoaded. However, it does not seem to prevent fast-script from executing until it's done loading and executing.</p>
+
+    <script>
+      loadScript({ url: '/fast-script', defer: true, async: false });
+
+      console.time('fast-script');
+      window.init = function () {
+        console.log('init callback from /fast-script/');
+        console.timeEnd('fast-script');
+      }
+
+      function loadScript({ url, async, defer }) {
+        return new Promise((resolve, reject) => {
+          console.time('loadScript()');
+          const newScript = document.createElement('script');
+          newScript.onerror = reject;
+          newScript.onload = function () {
+            console.timeEnd('loadScript()');
+            console.log('onload callback');
+            resolve();
+          }
+
+          if (typeof async !== 'undefined') {
+            newScript.async = async;
+          }
+
+          if (typeof defer !== 'undefined') {
+            newScript.defer = defer;
+          }
+
+          newScript.src = url;
+          document.head.insertBefore(newScript, document.head.firstElementChild);
+        });
+      }
+    </script>
+    <script>
+
+    </script>
+    <script src="/slow-script"></script>
+  </body>
+</html>

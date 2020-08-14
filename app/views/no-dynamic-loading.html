@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Demo using plain script tags</title>
+  </head>
+  <body>
+    <h1>Demo using plain script tags</h1>
+
+    <p>This page demonstrates how "defer" works by using plain script tags. It loads two script tags:</p>
+    <ul>
+        <li>fast-script - downloads after 1 second and given lower priority by using defer</li>
+        <li>slow-script - downloads after 10 seconds and given higher priority</li>
+    </ul>
+
+    <p>The slow-script does not use async or defer so it's given higher priority. It will block DOMContentLoaded and prevent fast-script from executing until it's done loading and executing.</p>
+
+    <script>
+      console.time('fast-script');
+      window.init = function () {
+        console.log('init callback from /fast-script/');
+        console.timeEnd('fast-script');
+      }
+    </script>
+    <script defer src="/fast-script"></script>
+    <script src="/slow-script"></script>
+  </body>
+</html>
